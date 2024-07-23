@@ -1,0 +1,12 @@
+.newCallForm {
+  border: 1px solid;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  width: fit-content;
+}
+
+.newCallForm :last-child {
+  margin-top: 1rem;
+}

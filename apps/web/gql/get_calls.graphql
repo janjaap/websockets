@@ -1,0 +1,8 @@
+query getCalls {
+  calls {
+    id
+    name
+    dateCreated
+    status
+  }
+}

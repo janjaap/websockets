@@ -1,13 +1,19 @@
 .page {
   display: grid;
-  grid-template-columns: 20rem auto;
+  gap: 1rem 2rem;
+  grid-template:
+    'title title'
+    'sidebar content' 1fr / min-content;
+}
+
+.title {
+  grid-area: title;
 }
 
 .sidebar {
-  grid-column-start: 1;
-  align-items: start;
+  grid-area: sidebar;
 }
 
 .content {
-  grid-column-start: 2;
+  grid-area: content;
 }

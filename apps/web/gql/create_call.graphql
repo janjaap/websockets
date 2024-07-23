@@ -1,0 +1,7 @@
+mutation CreateCall($callLabel: String!) {
+  createCall(name: $callLabel) {
+    id
+    name
+    dateCreated
+  }
+}

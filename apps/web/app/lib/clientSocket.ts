@@ -2,8 +2,4 @@
 
 import { io } from 'socket.io-client';
 
-export const clientSocket = io('ws://' + process.env.SOCKET_URL!);
-
-clientSocket.on('connect', () => {
-  console.log('Connected to server');
-});
+export const clientSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL!);

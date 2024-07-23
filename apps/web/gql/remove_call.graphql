@@ -1,0 +1,8 @@
+mutation endCall($callId: ID!) {
+  endCall(id: $callId) {
+    id
+    name
+    dateCreated
+    status
+  }
+}

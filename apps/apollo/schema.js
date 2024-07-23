@@ -32,9 +32,9 @@ const schema = gql`
   }
 
   type Query {
-    calls: [Call]
+    calls: [Call!]!
     call(id: ID!): Call
-    users: [User]
+    users: [User!]!
     user(id: ID!): User
   }
 
