@@ -1,0 +1,5 @@
+schema: ./graphql/schema.mjs
+generates:
+  ./types/gql-types.ts:
+    plugins:
+      - typescript

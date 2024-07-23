@@ -1,0 +1,36 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+.pnpm-debug.log*
+
+# Cache directories
+.next
+.npm
+.eslintcache
+.pnpm-store
+
+# Dependency directory
+**/node_modules/**
+
+tsconfig.tsbuildinfo
+
+# Visual Studio Code configs
+.vscode/
+
+# pnpm uses npm for publishing a new version with
+# dependencies bundled but the npm lockfile is not needed
+# because pnpm use pnpm for installation
+package-lock.json
+
+yarn.lock
+
+# dotenv environment variables file
+.env
+.env.local
+.env.test
+.env.production
+
+# Next.js build output
+.next
+out

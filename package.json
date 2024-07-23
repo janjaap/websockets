@@ -1,0 +1,10 @@
+{
+  "name": "websockets",
+  "version": "1.0.0",
+  "scripts": {
+    "dev:apollo": "pnpm --filter apollo run dev",
+    "dev:socket": "pnpm --filter socket run dev",
+    "dev:web": "pnpm --filter web run dev"
+  },
+  "packageManager": "pnpm@9.5.0"
+}
