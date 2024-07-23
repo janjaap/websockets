@@ -34,3 +34,5 @@ yarn.lock
 # Next.js build output
 .next
 out
+
+.devcontainer
