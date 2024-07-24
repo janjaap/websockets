@@ -11,18 +11,20 @@ io.on('connection', (socket) => {
 
   sockets.add(socket);
 
-  socket.on('message', (message, payload) => {
-    console.log({ message });
+  socket.on('message', (message, call) => {
+    console.log({ message, call });
+
     switch (message) {
       case 'call:start':
-        socket.emit('call:add', payload);
+        socket.emit('call:started', call);
         break;
       case 'call:end':
-        socket.emit('call:remove', payload);
+        socket.emit('call:ended', call);
+        break;
+      case 'call:remove':
+        socket.emit('call:removed', call);
         break;
     }
-
-    // console.log({ message, payload });
   });
 
   socket.on('close', () => {

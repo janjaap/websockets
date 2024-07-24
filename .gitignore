@@ -11,7 +11,7 @@ npm-debug.log*
 .pnpm-store
 
 # Dependency directory
-**/node_modules/**
+node_modules
 
 tsconfig.tsbuildinfo
 
@@ -22,7 +22,6 @@ tsconfig.tsbuildinfo
 # dependencies bundled but the npm lockfile is not needed
 # because pnpm use pnpm for installation
 package-lock.json
-
 yarn.lock
 
 # dotenv environment variables file
@@ -32,7 +31,7 @@ yarn.lock
 .env.production
 
 # Next.js build output
-.next
+dist
 out
 
 .devcontainer

@@ -1,4 +1,6 @@
-const { calls, users } = require('./data');
+const { calls: callsInDb, users } = require('./data');
+
+const calls = [...callsInDb];
 
 const updateStatus = (call, newStatus) => {
   switch (call.status) {
@@ -10,6 +12,26 @@ const updateStatus = (call, newStatus) => {
       return call;
   }
 };
+
+function getCall(id) {
+  const call = calls.find((call) => call.id === id);
+
+  if (!call) {
+    throw new Error('Call does not exist.');
+  }
+
+  return call;
+}
+
+function getUser(id) {
+  const user = users.find((user) => user.id === id);
+
+  if (!user) {
+    throw new Error('User does not exist.');
+  }
+
+  return user;
+}
 
 const resolvers = {
   Call: {
@@ -47,31 +69,20 @@ const resolvers = {
 
       return newCall;
     },
+    endCall: (_parent, { id }) => {
+      const call = getCall(id);
+
+      return { ...call, status: 'COMPLETED', participants: [] };
+    },
     joinCall: (_parent, { id, userId }) => {
-      const user = users.find((user) => user.id === userId);
-      const call = calls.find((call) => call.id === id);
-
-      if (!user) {
-        throw new Error('User does not exist.');
-      }
-
-      if (!call) {
-        throw new Error('Call does not exist.');
-      }
+      const user = getUser(userId);
+      const call = getCall(id);
 
       return { ...call, participants: [...call.participants, user] };
     },
     leaveCall: (_parent, { id, userId }) => {
-      const user = users.find((user) => user.id === userId);
-      const call = calls.find((call) => call.id === id);
-
-      if (!user) {
-        throw new Error('User does not exist.');
-      }
-
-      if (!call) {
-        throw new Error('Call does not exist.');
-      }
+      const user = getUser(userId);
+      const call = getCall(id);
 
       return {
         ...call,
@@ -80,23 +91,31 @@ const resolvers = {
         ),
       };
     },
-    updateCall: (_parent, { id, status }) => {
-      const call = calls.find((call) => call.id === id);
+    pauseCall: (_parent, { id }) => {
+      const call = getCall(id);
 
-      if (!call) {
+      return updateStatus(call, 'ON_HOLD');
+    },
+    removeCall: (_parent, { id }) => {
+      const callIndex = calls.findIndex((call) => call.id === id);
+
+      if (callIndex === -1) {
         throw new Error('Call does not exist.');
       }
+
+      const [call] = calls.splice(callIndex, 1);
+
+      return call;
+    },
+    unpauseCall: (_parent, { id }) => {
+      const call = getCall(id);
+
+      return updateStatus(call, 'IN_PROGRESS');
+    },
+    updateCall: (_parent, { id, status }) => {
+      const call = getCall(id);
 
       return updateStatus(call, status);
-    },
-    endCall: (_parent, { id }) => {
-      const call = calls.find((call) => call.id === id);
-
-      if (!call) {
-        throw new Error('Call does not exist.');
-      }
-
-      return { ...call, status: 'COMPLETED', participants: [] };
     },
   },
 };

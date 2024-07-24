@@ -1,0 +1,16 @@
+.button {
+  background: none;
+  border: 1px solid gray;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.button:disabled {
+  background: lightgray;
+  color: gray;
+  cursor: not-allowed;
+}
+
+.button:not(:disabled):hover {
+  background: lightgray;
+}

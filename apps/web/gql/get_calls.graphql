@@ -1,8 +1,5 @@
-query getCalls {
+query GetCalls {
   calls {
-    id
-    name
-    dateCreated
-    status
+    ...callFragment
   }
 }

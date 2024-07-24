@@ -1,0 +1,5 @@
+mutation EndCall($callId: ID!) {
+  endCall(id: $callId) {
+    ...callFragment
+  }
+}

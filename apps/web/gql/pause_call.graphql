@@ -1,0 +1,5 @@
+mutation PauseCall($callId: ID!) {
+  pauseCall(id: $callId) {
+    ...callFragment
+  }
+}

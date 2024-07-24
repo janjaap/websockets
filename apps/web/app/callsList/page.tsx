@@ -1,37 +1,24 @@
-'use client';
-
-import { RemoveCall } from 'app/components/removeCall/RemoveCall';
+import { Action } from 'app/components/action/Action';
 import { clientSocket } from 'app/lib/clientSocket';
-import { useEffect, useState } from 'react';
-import { useGetCallsLazyQuery } from 'types/graphql';
+import { useEffect } from 'react';
+import { Status, useGetCallsQuery } from 'types/graphql';
 
 export default function CallsList() {
-  const [getCalls, { data, error, loading }] = useGetCallsLazyQuery({
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'network-only',
-  });
-  const [numberOfCalls, setNumberOfCalls] = useState(0);
+  const { data, error, loading } = useGetCallsQuery();
 
   useEffect(() => {
-    clientSocket.on('call:add', (call) => {
-      console.log('call added:', call);
-      setNumberOfCalls((amount) => amount + 1);
-      getCalls();
+    clientSocket.on('call:started', (call) => {
+      console.log('call:started', call);
+    });
+
+    clientSocket.on('call:removed', (call) => {
+      console.log('call:removed', call);
     });
 
     return () => {
-      clientSocket.off('call:add');
+      clientSocket.off('call:started');
+      clientSocket.off('call:removed');
     };
-  }, []);
-
-  useEffect(() => {
-    if (loading || !data) return;
-
-    setNumberOfCalls(data.calls.length);
-  }, [data, loading]);
-
-  useEffect(() => {
-    getCalls();
   }, []);
 
   if (loading || !data) return null;
@@ -40,21 +27,44 @@ export default function CallsList() {
     throw error;
   }
 
-  console.log({ loading, data, error });
-
   return (
     <header>
-      <h1>Calls ({numberOfCalls})</h1>
-      <ul>
-        {data.calls.map((call) => (
-          <li key={call.id}>
-            <p>
-              {call.name} ({call.status.toString()})
-              <RemoveCall callId={call.id} />
-            </p>
-          </li>
-        ))}
-      </ul>
+      <h1>Calls ({data.calls.length})</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th />
+          </tr>
+        </thead>
+
+        <tbody>
+          {data.calls.map(({ id, name, status }) => (
+            <tr key={id}>
+              <td>{name}</td>
+              <td width="80">{status.toString()}</td>
+              <td>
+                <Action.Pause
+                  callId={id}
+                  onError={console.error}
+                  disabled={status !== Status.InProgress}
+                />
+                <Action.End
+                  callId={id}
+                  onError={console.error}
+                  disabled={status === Status.Completed}
+                />
+                <Action.Remove
+                  callId={id}
+                  onError={console.error}
+                  disabled={status !== Status.Completed}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </header>
   );
 }

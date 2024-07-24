@@ -10,8 +10,8 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16",
-    "module": "node16",
+    "moduleResolution": "bundler",
+    "module": "esnext",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -24,13 +24,13 @@
         "name": "next"
       }
     ],
-    "incremental": true
+    "incremental": true,
+    "types": ["react", "@apollo/client"]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "**/*.mjs",
     "**/types/*.ts",
     "**/*.mts"
   ],

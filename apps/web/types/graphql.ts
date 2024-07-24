@@ -26,11 +26,21 @@ export type Call = Node & {
 };
 
 export type Mutation = {
-  readonly createCall?: Maybe<Call>;
-  readonly endCall?: Maybe<Call>;
-  readonly joinCall?: Maybe<Call>;
-  readonly leaveCall?: Maybe<Call>;
-  readonly updateCall?: Maybe<Call>;
+  /** Create a new call, setting its status to PENDING */
+  readonly createCall: Call;
+  /** End a call, setting its status to COMPLETED */
+  readonly endCall: Call;
+  /** Current user joins call */
+  readonly joinCall: Call;
+  /** Current user leaves call */
+  readonly leaveCall: Call;
+  /** Call is put on hold */
+  readonly pauseCall: Call;
+  /** Call is deleted */
+  readonly removeCall: Call;
+  /** Call becomes active */
+  readonly unpauseCall: Call;
+  readonly updateCall: Call;
 };
 
 
@@ -56,6 +66,21 @@ export type MutationLeaveCallArgs = {
 };
 
 
+export type MutationPauseCallArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveCallArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUnpauseCallArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUpdateCallArgs = {
   id: Scalars['ID']['input'];
   status: Status;
@@ -67,9 +92,9 @@ export type Node = {
 };
 
 export type Query = {
-  readonly call?: Maybe<Call>;
+  readonly call: Call;
   readonly calls: ReadonlyArray<Call>;
-  readonly user?: Maybe<User>;
+  readonly user: User;
   readonly users: ReadonlyArray<User>;
 };
 
@@ -91,6 +116,7 @@ export enum Role {
 export enum Status {
   Completed = 'COMPLETED',
   InProgress = 'IN_PROGRESS',
+  OnHold = 'ON_HOLD',
   Pending = 'PENDING'
 }
 
@@ -100,35 +126,68 @@ export type User = Node & {
   readonly role: Role;
 };
 
+export type CallFragment = { readonly dateCreated: number, readonly id: string, readonly name: string, readonly status: Status, readonly participants?: ReadonlyArray<{ readonly id: string, readonly name: string, readonly role: Role }> | null };
+
 export type CreateCallMutationVariables = Exact<{
   callLabel: Scalars['String']['input'];
 }>;
 
 
-export type CreateCallMutation = { readonly createCall?: { readonly id: string, readonly name: string, readonly dateCreated: number } | null };
-
-export type GetCallsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetCallsQuery = { readonly calls: ReadonlyArray<{ readonly id: string, readonly name: string, readonly dateCreated: number, readonly status: Status }> };
+export type CreateCallMutation = { readonly createCall: { readonly dateCreated: number, readonly id: string, readonly name: string, readonly status: Status, readonly participants?: ReadonlyArray<{ readonly id: string, readonly name: string, readonly role: Role }> | null } };
 
 export type EndCallMutationVariables = Exact<{
   callId: Scalars['ID']['input'];
 }>;
 
 
-export type EndCallMutation = { readonly endCall?: { readonly id: string, readonly name: string, readonly dateCreated: number, readonly status: Status } | null };
+export type EndCallMutation = { readonly endCall: { readonly dateCreated: number, readonly id: string, readonly name: string, readonly status: Status, readonly participants?: ReadonlyArray<{ readonly id: string, readonly name: string, readonly role: Role }> | null } };
+
+export type GetCallQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
 
 
+export type GetCallQuery = { readonly call: { readonly dateCreated: number, readonly id: string, readonly name: string, readonly status: Status, readonly participants?: ReadonlyArray<{ readonly id: string, readonly name: string, readonly role: Role }> | null } };
+
+export type GetCallsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCallsQuery = { readonly calls: ReadonlyArray<{ readonly dateCreated: number, readonly id: string, readonly name: string, readonly status: Status, readonly participants?: ReadonlyArray<{ readonly id: string, readonly name: string, readonly role: Role }> | null }> };
+
+export type PauseCallMutationVariables = Exact<{
+  callId: Scalars['ID']['input'];
+}>;
+
+
+export type PauseCallMutation = { readonly pauseCall: { readonly dateCreated: number, readonly id: string, readonly name: string, readonly status: Status, readonly participants?: ReadonlyArray<{ readonly id: string, readonly name: string, readonly role: Role }> | null } };
+
+export type RemoveCallMutationVariables = Exact<{
+  callId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveCallMutation = { readonly removeCall: { readonly dateCreated: number, readonly id: string, readonly name: string, readonly status: Status, readonly participants?: ReadonlyArray<{ readonly id: string, readonly name: string, readonly role: Role }> | null } };
+
+export const CallFragmentDoc = gql`
+    fragment callFragment on Call {
+  dateCreated
+  id
+  name
+  participants {
+    id
+    name
+    role
+  }
+  status
+}
+    `;
 export const CreateCallDocument = gql`
     mutation CreateCall($callLabel: String!) {
   createCall(name: $callLabel) {
-    id
-    name
-    dateCreated
+    ...callFragment
   }
 }
-    `;
+    ${CallFragmentDoc}`;
 export type CreateCallMutationFn = Apollo.MutationFunction<CreateCallMutation, CreateCallMutationVariables>;
 
 /**
@@ -155,16 +214,86 @@ export function useCreateCallMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CreateCallMutationHookResult = ReturnType<typeof useCreateCallMutation>;
 export type CreateCallMutationResult = Apollo.MutationResult<CreateCallMutation>;
 export type CreateCallMutationOptions = Apollo.BaseMutationOptions<CreateCallMutation, CreateCallMutationVariables>;
-export const GetCallsDocument = gql`
-    query getCalls {
-  calls {
-    id
-    name
-    dateCreated
-    status
+export const EndCallDocument = gql`
+    mutation EndCall($callId: ID!) {
+  endCall(id: $callId) {
+    ...callFragment
   }
 }
-    `;
+    ${CallFragmentDoc}`;
+export type EndCallMutationFn = Apollo.MutationFunction<EndCallMutation, EndCallMutationVariables>;
+
+/**
+ * __useEndCallMutation__
+ *
+ * To run a mutation, you first call `useEndCallMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEndCallMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [endCallMutation, { data, loading, error }] = useEndCallMutation({
+ *   variables: {
+ *      callId: // value for 'callId'
+ *   },
+ * });
+ */
+export function useEndCallMutation(baseOptions?: Apollo.MutationHookOptions<EndCallMutation, EndCallMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<EndCallMutation, EndCallMutationVariables>(EndCallDocument, options);
+      }
+export type EndCallMutationHookResult = ReturnType<typeof useEndCallMutation>;
+export type EndCallMutationResult = Apollo.MutationResult<EndCallMutation>;
+export type EndCallMutationOptions = Apollo.BaseMutationOptions<EndCallMutation, EndCallMutationVariables>;
+export const GetCallDocument = gql`
+    query GetCall($id: ID!) {
+  call(id: $id) {
+    ...callFragment
+  }
+}
+    ${CallFragmentDoc}`;
+
+/**
+ * __useGetCallQuery__
+ *
+ * To run a query within a React component, call `useGetCallQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCallQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCallQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCallQuery(baseOptions: Apollo.QueryHookOptions<GetCallQuery, GetCallQueryVariables> & ({ variables: GetCallQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCallQuery, GetCallQueryVariables>(GetCallDocument, options);
+      }
+export function useGetCallLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCallQuery, GetCallQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCallQuery, GetCallQueryVariables>(GetCallDocument, options);
+        }
+export function useGetCallSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCallQuery, GetCallQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCallQuery, GetCallQueryVariables>(GetCallDocument, options);
+        }
+export type GetCallQueryHookResult = ReturnType<typeof useGetCallQuery>;
+export type GetCallLazyQueryHookResult = ReturnType<typeof useGetCallLazyQuery>;
+export type GetCallSuspenseQueryHookResult = ReturnType<typeof useGetCallSuspenseQuery>;
+export type GetCallQueryResult = Apollo.QueryResult<GetCallQuery, GetCallQueryVariables>;
+export const GetCallsDocument = gql`
+    query GetCalls {
+  calls {
+    ...callFragment
+  }
+}
+    ${CallFragmentDoc}`;
 
 /**
  * __useGetCallsQuery__
@@ -197,39 +326,69 @@ export type GetCallsQueryHookResult = ReturnType<typeof useGetCallsQuery>;
 export type GetCallsLazyQueryHookResult = ReturnType<typeof useGetCallsLazyQuery>;
 export type GetCallsSuspenseQueryHookResult = ReturnType<typeof useGetCallsSuspenseQuery>;
 export type GetCallsQueryResult = Apollo.QueryResult<GetCallsQuery, GetCallsQueryVariables>;
-export const EndCallDocument = gql`
-    mutation endCall($callId: ID!) {
-  endCall(id: $callId) {
-    id
-    name
-    dateCreated
-    status
+export const PauseCallDocument = gql`
+    mutation PauseCall($callId: ID!) {
+  pauseCall(id: $callId) {
+    ...callFragment
   }
 }
-    `;
-export type EndCallMutationFn = Apollo.MutationFunction<EndCallMutation, EndCallMutationVariables>;
+    ${CallFragmentDoc}`;
+export type PauseCallMutationFn = Apollo.MutationFunction<PauseCallMutation, PauseCallMutationVariables>;
 
 /**
- * __useEndCallMutation__
+ * __usePauseCallMutation__
  *
- * To run a mutation, you first call `useEndCallMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useEndCallMutation` returns a tuple that includes:
+ * To run a mutation, you first call `usePauseCallMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePauseCallMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [endCallMutation, { data, loading, error }] = useEndCallMutation({
+ * const [pauseCallMutation, { data, loading, error }] = usePauseCallMutation({
  *   variables: {
  *      callId: // value for 'callId'
  *   },
  * });
  */
-export function useEndCallMutation(baseOptions?: Apollo.MutationHookOptions<EndCallMutation, EndCallMutationVariables>) {
+export function usePauseCallMutation(baseOptions?: Apollo.MutationHookOptions<PauseCallMutation, PauseCallMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<EndCallMutation, EndCallMutationVariables>(EndCallDocument, options);
+        return Apollo.useMutation<PauseCallMutation, PauseCallMutationVariables>(PauseCallDocument, options);
       }
-export type EndCallMutationHookResult = ReturnType<typeof useEndCallMutation>;
-export type EndCallMutationResult = Apollo.MutationResult<EndCallMutation>;
-export type EndCallMutationOptions = Apollo.BaseMutationOptions<EndCallMutation, EndCallMutationVariables>;
+export type PauseCallMutationHookResult = ReturnType<typeof usePauseCallMutation>;
+export type PauseCallMutationResult = Apollo.MutationResult<PauseCallMutation>;
+export type PauseCallMutationOptions = Apollo.BaseMutationOptions<PauseCallMutation, PauseCallMutationVariables>;
+export const RemoveCallDocument = gql`
+    mutation RemoveCall($callId: ID!) {
+  removeCall(id: $callId) {
+    ...callFragment
+  }
+}
+    ${CallFragmentDoc}`;
+export type RemoveCallMutationFn = Apollo.MutationFunction<RemoveCallMutation, RemoveCallMutationVariables>;
+
+/**
+ * __useRemoveCallMutation__
+ *
+ * To run a mutation, you first call `useRemoveCallMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveCallMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeCallMutation, { data, loading, error }] = useRemoveCallMutation({
+ *   variables: {
+ *      callId: // value for 'callId'
+ *   },
+ * });
+ */
+export function useRemoveCallMutation(baseOptions?: Apollo.MutationHookOptions<RemoveCallMutation, RemoveCallMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveCallMutation, RemoveCallMutationVariables>(RemoveCallDocument, options);
+      }
+export type RemoveCallMutationHookResult = ReturnType<typeof useRemoveCallMutation>;
+export type RemoveCallMutationResult = Apollo.MutationResult<RemoveCallMutation>;
+export type RemoveCallMutationOptions = Apollo.BaseMutationOptions<RemoveCallMutation, RemoveCallMutationVariables>;

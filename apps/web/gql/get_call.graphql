@@ -1,0 +1,5 @@
+query GetCall($id: ID!) {
+  call(id: $id) {
+    ...callFragment
+  }
+}

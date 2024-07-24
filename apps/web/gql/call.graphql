@@ -1,0 +1,11 @@
+fragment callFragment on Call {
+  dateCreated
+  id
+  name
+  participants {
+    id
+    name
+    role
+  }
+  status
+}

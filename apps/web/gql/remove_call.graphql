@@ -1,8 +1,5 @@
-mutation endCall($callId: ID!) {
-  endCall(id: $callId) {
-    id
-    name
-    dateCreated
-    status
+mutation RemoveCall($callId: ID!) {
+  removeCall(id: $callId) {
+    ...callFragment
   }
 }
