@@ -5,7 +5,7 @@ import css from './login.module.css';
 
 export const Login = () => {
   const [loginName, setLoginName] = useState('');
-  const [login, { loading, error }] = useLogin();
+  const [login, { data, loading, error }] = useLogin();
 
   function onChangeLoginName(event: ChangeEvent<HTMLInputElement>) {
     const { value } = event.currentTarget;
@@ -20,6 +20,8 @@ export const Login = () => {
 
     await login({ variables: { name: loginName } });
   }
+
+  console.log({ data });
 
   return (
     <div>

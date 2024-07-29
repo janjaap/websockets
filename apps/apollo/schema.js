@@ -17,13 +17,7 @@ const schema = gql`
   type User implements Node {
     id: ID!
     name: String!
-    role: Role!
     sessionId: ID!
-  }
-
-  enum Role {
-    CALLER
-    RECEIVER
   }
 
   enum Status {

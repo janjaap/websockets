@@ -1,5 +1,5 @@
 fragment userFragment on User {
   id
   name
-  role
+  sessionId
 }

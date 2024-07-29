@@ -41,7 +41,7 @@ const resolvers = {
   User: {
     id: ({ id }) => id,
     name: ({ name }) => name,
-    role: ({ role }) => role,
+    sessionId: ({ sessionId }) => sessionId,
   },
 
   Query: {
@@ -136,10 +136,11 @@ const resolvers = {
       return unpausedCall;
     },
     login: (_parent, { name }) => {
+      const id = crypto.randomUUID();
       const newUser = {
-        id: crypto.randomUUID(),
+        id,
         name,
-        role: 'USER',
+        sessionId: `${id}_${Date.now()}`,
       };
 
       users.push(newUser);

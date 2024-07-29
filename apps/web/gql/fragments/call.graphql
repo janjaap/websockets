@@ -3,9 +3,7 @@ fragment callFragment on Call {
   id
   name
   participants {
-    id
-    name
-    role
+    ...userFragment
   }
   status
 }
