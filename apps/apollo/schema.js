@@ -18,6 +18,7 @@ const schema = gql`
     id: ID!
     name: String!
     sessionId: ID!
+    isLoggedIn: Boolean!
   }
 
   enum Status {
