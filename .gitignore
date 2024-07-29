@@ -33,5 +33,3 @@ yarn.lock
 # Next.js build output
 dist
 out
-
-.devcontainer

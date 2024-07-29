@@ -1,0 +1,44 @@
+{
+  "name": "websockets",
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "christian-kohler.npm-intellisense",
+        "dbaeumer.vscode-eslint",
+        "EditorConfig.EditorConfig",
+        "esbenp.prettier-vscode",
+        "rvest.vs-code-prettier-eslint"
+      ]
+    }
+  },
+  "containerEnv": {
+    "GRAPH_API_TOKEN": "eyJpc3MiOiI4YzE1ZmIwYy1iYmVmLTQ4MjAtYmYwZC1kOTM5YTNlZDI1YzMiLCJmZWRlcmF0ZWRfZ3JhcGhfaWQiOiJmZWFhYWE1Yi02NTllLTQzM2MtODM2MC0yN2U1NmZlNGI5ZWMiLCJhdWQiOiJjb3NtbzpncmFwaC1rZXkiLCJvcmdhbml6YXRpb25faWQiOiIxYWRhZDFiYi05Y2FiLTRlZTItOTEyZS1lOTA4MjhlZmIyY2IiLCJpYXQiOjE3MjExOTk5NjZ9"
+  },
+  "mounts": [
+    // persist user profile between rebuilds
+    "source=profile,target=/root,type=volume",
+    // anonymous volume that allows VS Code to cache extensions and dotfiles
+    "target=/root/.vscode-server,type=volume"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true,
+      "azureDnsAutoDetection": true,
+      "installDockerBuildx": true,
+      "installDockerComposeSwitch": true,
+      "version": "latest",
+      "dockerDashComposeVersion": "latest"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "nodeGypDependencies": true,
+      "installYarnUsingApt": true,
+      "version": "lts",
+      "nvmVersion": "latest"
+    },
+    "ghcr.io/devcontainers-contrib/features/pnpm:2": {
+      "version": "latest"
+    }
+  }
+}
