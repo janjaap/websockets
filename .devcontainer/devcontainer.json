@@ -31,6 +31,5 @@
     "ghcr.io/devcontainers-contrib/features/pnpm:2": {
       "version": "latest"
     }
-  },
-  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}"
+  }
 }
