@@ -4,12 +4,14 @@ const calls = [
     name: 'Call #1',
     status: 'PENDING',
     dateCreated: 1721217529380,
+    participants: [],
   },
   {
     id: '892dc8af-caa7-46dd-a66b-1cf0783c6c9e',
     name: 'Call #2',
     status: 'COMPLETED',
     dateCreated: 1721217521380,
+    participants: [],
   },
 ];
 

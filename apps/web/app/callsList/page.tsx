@@ -1,23 +1,59 @@
-import { Action } from 'app/components/action/Action';
+import { CallsTable } from 'app/components/callsTable/CallsTable';
 import { clientSocket } from 'app/lib/clientSocket';
 import { useEffect } from 'react';
-import { Status, useGetCallsQuery } from 'types/graphql';
+import { Call, useGetCallsQuery } from 'types/graphql';
 
 export default function CallsList() {
-  const { data, error, loading } = useGetCallsQuery();
+  const { data, error, loading, updateQuery } = useGetCallsQuery();
+
+  const listener = (message: string, call: Call) => {
+    switch (message) {
+      case 'call:ended':
+      case 'call:paused':
+      case 'call:unpaused': {
+        updateQuery(({ calls }) => {
+          const callIndex = calls.findIndex(({ id }) => call.id === id);
+
+          return {
+            calls: calls.toSpliced(callIndex, 1, call),
+          };
+        });
+      }
+    }
+  };
 
   useEffect(() => {
+    clientSocket.onAny(listener);
+
     clientSocket.on('call:started', (call) => {
       console.log('call:started', call);
+      updateQuery(({ calls }) => ({ calls: [...calls, call] }));
     });
 
     clientSocket.on('call:removed', (call) => {
       console.log('call:removed', call);
+      updateQuery(({ calls }) => ({
+        calls: calls.filter(({ id }) => id !== call.id),
+      }));
     });
+
+    // clientSocket.on('call:ended', (call) => {
+    //   console.log('call:ended', call);
+
+    //   updateQuery(({ calls }) => {
+    //     const callIndex = calls.findIndex(({ id }) => call.id === id);
+
+    //     return {
+    //       calls: calls.toSpliced(callIndex, 1, call),
+    //     };
+    //   });
+    // });
 
     return () => {
       clientSocket.off('call:started');
       clientSocket.off('call:removed');
+      // clientSocket.off('call:ended');
+      clientSocket.offAny(listener);
     };
   }, []);
 
@@ -28,43 +64,12 @@ export default function CallsList() {
   }
 
   return (
-    <header>
-      <h1>Calls ({data.calls.length})</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Status</th>
-            <th />
-          </tr>
-        </thead>
+    <>
+      <header>
+        <h1>Calls ({data.calls.length})</h1>
+      </header>
 
-        <tbody>
-          {data.calls.map(({ id, name, status }) => (
-            <tr key={id}>
-              <td>{name}</td>
-              <td width="80">{status.toString()}</td>
-              <td>
-                <Action.Pause
-                  callId={id}
-                  onError={console.error}
-                  disabled={status !== Status.InProgress}
-                />
-                <Action.End
-                  callId={id}
-                  onError={console.error}
-                  disabled={status === Status.Completed}
-                />
-                <Action.Remove
-                  callId={id}
-                  onError={console.error}
-                  disabled={status !== Status.Completed}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </header>
+      <CallsTable calls={data.calls} />
+    </>
   );
 }

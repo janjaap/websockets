@@ -23,6 +23,10 @@ importers:
       graphql:
         specifier: ^16.9.0
         version: 16.9.0
+    devDependencies:
+      '@websockets/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
 
   apps/socket:
     dependencies:
@@ -60,6 +64,8 @@ importers:
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
+
+  packages/utils: {}
 
 packages:
 

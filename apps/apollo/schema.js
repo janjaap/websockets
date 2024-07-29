@@ -30,7 +30,7 @@ const schema = gql`
     COMPLETED
     # Active call with one or more participants
     IN_PROGRESS
-    # Paused, participants can join
+    # Paused, participants can join or leave
     ON_HOLD
     # New call, no participants
     PENDING
@@ -49,14 +49,13 @@ const schema = gql`
     "End a call, setting its status to COMPLETED"
     endCall(id: ID!): Call!
     "Current user joins call"
-    joinCall(id: ID!, userId: ID!): Call!
+    joinCall(callId: ID!, userId: ID!): Call!
     "Current user leaves call"
-    leaveCall(id: ID!, userId: ID!): Call!
+    leaveCall(callId: ID!, userId: ID!): Call!
     "Call is put on hold"
     pauseCall(id: ID!): Call!
     "Call is deleted"
     removeCall(id: ID!): Call!
-    updateCall(id: ID!, status: Status!): Call!
     "Call becomes active"
     unpauseCall(id: ID!): Call!
   }

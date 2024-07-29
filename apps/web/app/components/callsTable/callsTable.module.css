@@ -1,0 +1,28 @@
+.table {
+  border-collapse: collapse;
+  border-spacing: 0.5rem;
+  empty-cells: show;
+}
+
+.table td {
+  border: solid thin #999;
+}
+
+.table thead {
+  background-color: #999;
+}
+
+.table td,
+.table th {
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.table th {
+  border: solid thin #222;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}

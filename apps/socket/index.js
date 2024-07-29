@@ -16,13 +16,19 @@ io.on('connection', (socket) => {
 
     switch (message) {
       case 'call:start':
-        socket.emit('call:started', call);
+        socket.broadcast.emit('call:started', call);
         break;
       case 'call:end':
-        socket.emit('call:ended', call);
+        socket.broadcast.emit('call:ended', call);
         break;
       case 'call:remove':
-        socket.emit('call:removed', call);
+        socket.broadcast.emit('call:removed', call);
+        break;
+      case 'call:pause':
+        socket.broadcast.emit('call:paused', call);
+        break;
+      case 'call:unpause':
+        socket.broadcast.emit('call:unpaused', call);
         break;
     }
   });

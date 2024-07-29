@@ -1,0 +1,5 @@
+mutation LeaveCall($callId: ID!, $userId: ID!) {
+  leaveCall(callId: $callId, userId: $userId) {
+    ...callFragment
+  }
+}

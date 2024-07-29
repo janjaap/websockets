@@ -1,0 +1,5 @@
+mutation JoinCall($callId: ID!, $userId: ID!) {
+  joinCall(callId: $callId, userId: $userId) {
+    ...callFragment
+  }
+}

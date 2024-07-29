@@ -1,17 +1,7 @@
 const { calls: callsInDb, users } = require('./data');
+const transitionStatus = require('@websockets/utils/machine');
 
 const calls = [...callsInDb];
-
-const updateStatus = (call, newStatus) => {
-  switch (call.status) {
-    case 'PENDING':
-    case 'IN_PROGRESS':
-      return { ...call, status: newStatus };
-
-    case 'COMPLETED':
-      return call;
-  }
-};
 
 function getCall(id) {
   const call = calls.find((call) => call.id === id);
@@ -32,6 +22,8 @@ function getUser(id) {
 
   return user;
 }
+
+const callIndex = (callId) => calls.findIndex(({ id }) => id === callId);
 
 const resolvers = {
   Call: {
@@ -72,29 +64,55 @@ const resolvers = {
     endCall: (_parent, { id }) => {
       const call = getCall(id);
 
+      calls.splice(callIndex(id), 1, call);
+
       return { ...call, status: 'COMPLETED', participants: [] };
     },
-    joinCall: (_parent, { id, userId }) => {
+    joinCall: (_parent, { callId, userId }) => {
       const user = getUser(userId);
-      const call = getCall(id);
+      const call = getCall(callId);
 
-      return { ...call, participants: [...call.participants, user] };
-    },
-    leaveCall: (_parent, { id, userId }) => {
-      const user = getUser(userId);
-      const call = getCall(id);
+      if (call.participants.some((participant) => participant.id === user.id)) {
+        // user already joined
+        return call;
+      }
 
-      return {
-        ...call,
-        participants: call.participants.filter(
-          (participant) => participant.id !== userId
-        ),
+      const joinedCall = {
+        ...transitionStatus(call, 'JOIN'),
+        participants: [...call.participants, user],
       };
+
+      calls.splice(callIndex(call.id), 1, joinedCall);
+
+      return joinedCall;
+    },
+    leaveCall: (_parent, { callId, userId }) => {
+      const user = getUser(userId);
+      const call = getCall(callId);
+
+      const participants = call.participants.filter(
+        (participant) => participant.id !== user.id
+      );
+
+      const callWithLessParticipants = {
+        ...call,
+        participants,
+      };
+
+      const leftCall = transitionStatus(callWithLessParticipants, 'LEAVE');
+
+      calls.splice(callIndex(call.id), 1, leftCall);
+
+      return leftCall;
     },
     pauseCall: (_parent, { id }) => {
       const call = getCall(id);
 
-      return updateStatus(call, 'ON_HOLD');
+      const pausedCall = transitionStatus(call, 'ON_HOLD');
+
+      calls.splice(callIndex(call.id), 1, pausedCall);
+
+      return pausedCall;
     },
     removeCall: (_parent, { id }) => {
       const callIndex = calls.findIndex((call) => call.id === id);
@@ -110,12 +128,11 @@ const resolvers = {
     unpauseCall: (_parent, { id }) => {
       const call = getCall(id);
 
-      return updateStatus(call, 'IN_PROGRESS');
-    },
-    updateCall: (_parent, { id, status }) => {
-      const call = getCall(id);
+      const unpausedCall = transitionStatus(call, 'IN_PROGRESS');
 
-      return updateStatus(call, status);
+      calls.splice(callIndex(call.id), 1, unpausedCall);
+
+      return unpausedCall;
     },
   },
 };

@@ -1,52 +1,17 @@
 import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 
-import { ApolloError, MutationHookOptions } from '@apollo/client';
+import { ApolloError } from '@apollo/client';
 import { clientSocket } from 'app/lib/clientSocket';
-import { Call, CallFragmentDoc, useCreateCallMutation } from 'types/graphql';
+import { useCreateCall } from 'app/lib/hooks/useCreateCall';
 import css from './newCall.module.css';
 
 interface Props {
   onError: (error?: ApolloError) => void;
 }
 
-type Update = MutationHookOptions['update'];
-
-const update: Update = (cache, { data }) => {
-  if (!data) return;
-
-  const { createCall } = data;
-
-  cache.modify<{ calls: Array<Call> }>({
-    fields: {
-      calls(existingCallRefs, { readField }) {
-        const newCallRef = cache.writeFragment({
-          data: createCall,
-          fragment: CallFragmentDoc,
-        });
-
-        if (!newCallRef) {
-          return existingCallRefs;
-        }
-
-        const id = cache.identify(newCallRef);
-
-        if (existingCallRefs.some((ref) => readField('id', ref) === id)) {
-          return existingCallRefs;
-        }
-
-        return [...existingCallRefs, newCallRef];
-      },
-    },
-  });
-};
-
 export const NewCall = ({ onError }: Props) => {
   const [callLabel, setCallLabel] = useState('');
-  const [createCall, createCallResult] = useCreateCallMutation({
-    update,
-  });
-
-  const { loading, data, error } = createCallResult;
+  const [createCall, { loading, data, error }] = useCreateCall();
 
   useEffect(() => {
     if (loading || !data) return;
