@@ -16,16 +16,16 @@ const calls = [
 ];
 
 const users = [
-  {
-    id: 'b2b3f9a0-7a7c-4d1a-8c0d-0b2b3d9b7b3c',
-    name: 'Alice',
-    role: 'CALLER',
-  },
-  {
-    id: 'b2b3f9a0-7a7c-4d1a-8c0d-0b2b3d9b7b3d',
-    name: 'Bob',
-    role: 'RECEIVER',
-  },
+  // {
+  //   id: 'b2b3f9a0-7a7c-4d1a-8c0d-0b2b3d9b7b3c',
+  //   name: 'Alice',
+  //   role: 'CALLER',
+  // },
+  // {
+  //   id: 'b2b3f9a0-7a7c-4d1a-8c0d-0b2b3d9b7b3d',
+  //   name: 'Bob',
+  //   role: 'RECEIVER',
+  // },
 ];
 
 module.exports = { calls, users };

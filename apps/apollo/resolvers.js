@@ -23,7 +23,11 @@ function getUser(id) {
   return user;
 }
 
-const callIndex = (callId) => calls.findIndex(({ id }) => id === callId);
+const callIndex = (callId) => {
+  const call = getCall(callId);
+
+  return calls.findIndex(({ id }) => id === call.id);
+};
 
 const resolvers = {
   Call: {
@@ -117,11 +121,8 @@ const resolvers = {
     },
     removeCall: (_parent, { id }) => {
       const callToBeRemoved = getCall(id);
-      const callIndex = calls.findIndex(
-        (call) => call.id === callToBeRemoved.id
-      );
 
-      const [call] = calls.splice(callIndex, 1);
+      const [call] = calls.splice(callIndex(callToBeRemoved.id), 1);
 
       return call;
     },
@@ -133,6 +134,17 @@ const resolvers = {
       calls.splice(callIndex(call.id), 1, unpausedCall);
 
       return unpausedCall;
+    },
+    login: (_parent, { name }) => {
+      const newUser = {
+        id: crypto.randomUUID(),
+        name,
+        role: 'USER',
+      };
+
+      users.push(newUser);
+
+      return newUser;
     },
   },
 };

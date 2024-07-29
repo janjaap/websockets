@@ -1,0 +1,12 @@
+.loginForm {
+  border: solid thin #999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  width: fit-content;
+}
+
+.loginForm :last-child {
+  margin-top: 1rem;
+}

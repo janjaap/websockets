@@ -18,6 +18,7 @@ const schema = gql`
     id: ID!
     name: String!
     role: Role!
+    sessionId: ID!
   }
 
   enum Role {
@@ -58,6 +59,7 @@ const schema = gql`
     removeCall(id: ID!): Call!
     "Call becomes active"
     unpauseCall(id: ID!): Call!
+    login(name: String!): User!
   }
 `;
 

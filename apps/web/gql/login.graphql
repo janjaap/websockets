@@ -1,0 +1,5 @@
+mutation LogIn($name: String!) {
+  login(name: $name) {
+    ...userFragment
+  }
+}

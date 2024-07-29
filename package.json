@@ -4,12 +4,7 @@
   "scripts": {
     "dev:apollo": "pnpm --filter apollo run dev",
     "dev:socket": "pnpm --filter socket run dev",
-    "dev:web": "pnpm --filter web run dev",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "dev:web": "pnpm --filter web run dev"
   },
-  "packageManager": "pnpm@9.5.0",
-  "devDependencies": {
-    "@graphql-codegen/cli": "5.0.2",
-    "@graphql-codegen/typescript-react-apollo": "^4.3.0"
-  }
+  "packageManager": "pnpm@9.5.0"
 }
