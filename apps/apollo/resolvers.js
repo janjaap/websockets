@@ -63,10 +63,11 @@ const resolvers = {
     },
     endCall: (_parent, { id }) => {
       const call = getCall(id);
+      const completed = { ...call, status: 'COMPLETED', participants: [] };
 
-      calls.splice(callIndex(id), 1, call);
+      calls.splice(callIndex(id), 1, completed);
 
-      return { ...call, status: 'COMPLETED', participants: [] };
+      return completed;
     },
     joinCall: (_parent, { callId, userId }) => {
       const user = getUser(userId);
@@ -108,18 +109,17 @@ const resolvers = {
     pauseCall: (_parent, { id }) => {
       const call = getCall(id);
 
-      const pausedCall = transitionStatus(call, 'ON_HOLD');
+      const pausedCall = transitionStatus(call, 'PAUSE');
 
       calls.splice(callIndex(call.id), 1, pausedCall);
 
       return pausedCall;
     },
     removeCall: (_parent, { id }) => {
-      const callIndex = calls.findIndex((call) => call.id === id);
-
-      if (callIndex === -1) {
-        throw new Error('Call does not exist.');
-      }
+      const callToBeRemoved = getCall(id);
+      const callIndex = calls.findIndex(
+        (call) => call.id === callToBeRemoved.id
+      );
 
       const [call] = calls.splice(callIndex, 1);
 
@@ -128,7 +128,7 @@ const resolvers = {
     unpauseCall: (_parent, { id }) => {
       const call = getCall(id);
 
-      const unpausedCall = transitionStatus(call, 'IN_PROGRESS');
+      const unpausedCall = transitionStatus(call, 'UNPAUSE');
 
       calls.splice(callIndex(call.id), 1, unpausedCall);
 

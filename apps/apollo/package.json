@@ -4,13 +4,15 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "test": "jest"
   },
   "dependencies": {
     "apollo-server": "^3.13.0",
     "graphql": "^16.9.0"
   },
   "devDependencies": {
-    "@websockets/utils": "workspace:*"
+    "@websockets/utils": "workspace:*",
+    "jest": "^29.7.0"
   }
 }
