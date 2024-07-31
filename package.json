@@ -5,7 +5,14 @@
     "dev:apollo": "pnpm --filter apollo run dev",
     "dev:socket": "pnpm --filter socket run dev",
     "dev:web": "pnpm --filter web run dev",
-    "codegen": "pnpm --filter web run codegen"
+    "codegen": "pnpm --filter apollo --sequential run codegen"
   },
-  "packageManager": "pnpm@9.5.0"
+  "packageManager": "pnpm@9.5.0",
+  "dependencies": {
+    "@types/jest": "^29.5.12"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.0"
+  }
 }

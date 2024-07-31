@@ -1,5 +1,19 @@
-const { users, calls } = require('./data');
-const resolvers = require('./resolvers');
+import { calls, users } from './data';
+import resolvers from './resolvers';
+
+jest.mock('./data', () => ({
+  ...jest.requireActual('./data'),
+  users: [
+    {
+      id: 'b2b3f9a0-7a7c-4d1a-8c0d-0b2b3d9b7b3c',
+      name: 'Alice',
+    },
+    {
+      id: 'b2b3f9a0-7a7c-4d1a-8c0d-0b2b3d9b7b3d',
+      name: 'Bob',
+    },
+  ],
+}));
 
 describe('resolvers', () => {
   describe('Call', () => {
@@ -54,25 +68,25 @@ describe('resolvers', () => {
       expect(result).toBe('User 1');
     });
 
-    it('returns the user role', () => {
-      const user = { role: 'ADMIN' };
-      const result = resolvers.User.role(user);
+    it('returns the user sessionId', () => {
+      const user = { sessionId: 'foo_123' };
+      const result = resolvers.User.sessionId(user);
 
-      expect(result).toBe('ADMIN');
+      expect(result).toBe('foo_123');
     });
   });
 
   describe('Query', () => {
     it('returns a call by id', () => {
       const call = calls[1];
-      const result = resolvers.Query.call(null, { id: call.id });
+      const result = resolvers.Query.call(null, call);
 
       expect(result).toEqual(call);
     });
 
     it('returns a user by id', () => {
       const user = users[1];
-      const result = resolvers.Query.user(null, { id: user.id });
+      const result = resolvers.Query.user(null, user);
 
       expect(result).toEqual(user);
     });
@@ -159,7 +173,7 @@ describe('resolvers', () => {
       const callToJoin = resolvers.Query.calls().find(
         (call) => call.status !== 'COMPLETED'
       );
-      const user = users[0];
+
       users.forEach((user) => {
         resolvers.Mutation.joinCall(null, {
           callId: callToJoin.id,
@@ -185,6 +199,28 @@ describe('resolvers', () => {
 
       expect(result).toBe(callToRemove);
       expect(containsCall(callToRemove)).toBe(false);
+    });
+
+    it('logs a user in', () => {
+      const name = 'Kees';
+      const result = resolvers.Mutation.login(null, { name });
+
+      const newUser = {
+        id: expect.any(String),
+        name,
+      };
+
+      expect(result).toMatchObject(newUser);
+    });
+
+    it('logs a user out', () => {
+      const numUsers = resolvers.Query.users().length;
+      const user = users[0];
+      const result = resolvers.Mutation.logout(null, user);
+
+      expect(result).toBe(user);
+
+      expect(resolvers.Query.users().length).toBe(numUsers - 1);
     });
   });
 });

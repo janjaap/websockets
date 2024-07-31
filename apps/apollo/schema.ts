@@ -1,6 +1,6 @@
-const { gql } = require('apollo-server');
+import { gql } from 'apollo-server';
 
-const schema = gql`
+export default gql`
   interface Node {
     id: ID!
     name: String!
@@ -18,6 +18,9 @@ const schema = gql`
     id: ID!
     name: String!
     sessionId: ID!
+  }
+
+  extend type User {
     isLoggedIn: Boolean!
   }
 
@@ -55,7 +58,6 @@ const schema = gql`
     "Call becomes active"
     unpauseCall(id: ID!): Call!
     login(name: String!): User!
+    logout(userId: ID!): User!
   }
 `;
-
-module.exports = schema;
