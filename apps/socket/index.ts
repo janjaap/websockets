@@ -1,12 +1,12 @@
-const { createServer } = require('http');
-const { Server } = require('socket.io');
+import { createServer } from 'http';
+import { Server, Socket } from 'socket.io';
 
 const httpServer = createServer();
 const port = 5000;
-const sockets = new Set();
+const sockets = new Set<Socket>();
 const io = new Server(httpServer);
 
-io.on('connection', (socket) => {
+io.on('connection', (socket: Socket) => {
   console.log(`socket ${socket.id} connected`);
 
   sockets.add(socket);
