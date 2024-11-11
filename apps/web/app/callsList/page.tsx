@@ -1,10 +1,12 @@
 import { CallsTable } from 'app/components/callsTable/CallsTable';
 import { clientSocket } from 'app/lib/clientSocket';
 import { useEffect } from 'react';
-import { Call, useGetCallsQuery } from 'types/graphql';
+import { SocketMessageEffect } from 'socket/types';
+import { Call, useGetCallsQuery, useGetUsersLazyQuery } from 'types/graphql';
 
 export default function CallsList() {
   const { data, error, loading, updateQuery } = useGetCallsQuery();
+  const [getUsers] = useGetUsersLazyQuery();
 
   const listener = (message: string, call: Call) => {
     switch (message) {
@@ -23,14 +25,16 @@ export default function CallsList() {
   };
 
   useEffect(() => {
+    getUsers();
+
     clientSocket.onAny(listener);
 
-    clientSocket.on('call:started', (call) => {
+    clientSocket.on(SocketMessageEffect.STARTED, (call: Call) => {
       console.log('call:started', call);
       updateQuery(({ calls }) => ({ calls: [...calls, call] }));
     });
 
-    clientSocket.on('call:removed', (call) => {
+    clientSocket.on(SocketMessageEffect.REMOVED, (call: Call) => {
       console.log('call:removed', call);
       updateQuery(({ calls }) => ({
         calls: calls.filter(({ id }) => id !== call.id),
@@ -50,8 +54,8 @@ export default function CallsList() {
     // });
 
     return () => {
-      clientSocket.off('call:started');
-      clientSocket.off('call:removed');
+      clientSocket.off(SocketMessageEffect.STARTED);
+      clientSocket.off(SocketMessageEffect.REMOVED);
       // clientSocket.off('call:ended');
       clientSocket.offAny(listener);
     };

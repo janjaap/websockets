@@ -1,50 +1,60 @@
 import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
+import { Server, type Socket } from 'socket.io';
+import {
+  ClientEvents,
+  ClientToServerEvents,
+  ServerToClientEvents,
+  SocketMessageCause,
+  SocketMessageEffect,
+} from './types';
 
 const httpServer = createServer();
 const port = 5000;
 const sockets = new Set<Socket>();
-const io = new Server(httpServer);
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer);
 
-io.on('connection', (socket: Socket) => {
-  console.log(`socket ${socket.id} connected`);
+io.on(
+  'connection',
+  (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
+    console.log(`socket ${socket.id} connected`);
 
-  sockets.add(socket);
+    sockets.add(socket);
 
-  socket.on('message', (message, call) => {
-    console.log({ message, call });
+    socket.on(ClientEvents.MUTATE, (message, call) => {
+      console.log({ message, call });
 
-    switch (message) {
-      case 'call:start':
-        socket.broadcast.emit('call:started', call);
-        break;
-      case 'call:end':
-        socket.broadcast.emit('call:ended', call);
-        break;
-      case 'call:remove':
-        socket.broadcast.emit('call:removed', call);
-        break;
-      case 'call:pause':
-        socket.broadcast.emit('call:paused', call);
-        break;
-      case 'call:unpause':
-        socket.broadcast.emit('call:unpaused', call);
-        break;
-    }
-  });
+      switch (message) {
+        case SocketMessageCause.START:
+          socket.broadcast.emit(SocketMessageEffect.STARTED, call);
+          break;
+        case SocketMessageCause.END:
+          socket.broadcast.emit(SocketMessageEffect.ENDED, call);
+          break;
+        case SocketMessageCause.REMOVE:
+          socket.broadcast.emit(SocketMessageEffect.REMOVED, call);
+          break;
+        case SocketMessageCause.PAUSE:
+          socket.broadcast.emit(SocketMessageEffect.PAUSED, call);
+          break;
+        case SocketMessageCause.UNPAUSE:
+          socket.broadcast.emit(SocketMessageEffect.UNPAUSED, call);
+          break;
+      }
+    });
 
-  socket.on('close', () => {
-    console.log('websocket connection closed');
-  });
+    socket.on(ClientEvents.CLOSE, () => {
+      console.log('websocket connection closed');
+    });
 
-  socket.on('error', (err) => {
-    console.error(err);
-  });
+    socket.on(ClientEvents.ERROR, (err) => {
+      console.error(err);
+    });
 
-  socket.on('disconnect', (reason) => {
-    console.log(`socket ${socket.id} disconnected due to ${reason}`);
-  });
-});
+    socket.on(ClientEvents.DISCONNECT, (reason) => {
+      console.log(`socket ${socket.id} disconnected due to ${reason}`);
+    });
+  }
+);
 
 httpServer
   .once('error', (err) => {

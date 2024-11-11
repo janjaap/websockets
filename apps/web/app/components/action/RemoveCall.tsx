@@ -1,25 +1,13 @@
-import { StoreObject } from '@apollo/client';
 import { clientSocket } from 'app/lib/clientSocket';
+import { useRemoveCall } from 'app/lib/hooks/useRemoveCall';
 import { useEffect } from 'react';
-import { useRemoveCallMutation } from 'types/graphql';
-import { ActionProps } from './action';
+import { ClientEvents, SocketMessageCause } from 'socket/types';
 import { Action } from './Action';
+import { ActionProps } from './types';
 
 export const RemoveCall = (props: ActionProps) => {
   const { callId, isDisabled, onError } = props;
-  const [mutate, { loading, data, error }] = useRemoveCallMutation({
-    update: (cache) => {
-      const call = { __typename: 'Call', id: callId } as StoreObject;
-
-      const id = cache.identify(call);
-
-      cache.evict({ id });
-
-      cache.gc();
-
-      clientSocket.emit('message', 'call:remove', call);
-    },
-  });
+  const [mutate, { loading, data, error, called }] = useRemoveCall();
 
   function onClick() {
     mutate({ variables: { callId } });
@@ -30,6 +18,20 @@ export const RemoveCall = (props: ActionProps) => {
       onError(error);
     }
   }, []);
+
+  useEffect(() => {
+    if (!called) return;
+
+    if (loading || !data) return;
+
+    const { removeCall } = data;
+
+    clientSocket.emit(
+      ClientEvents.MUTATE,
+      SocketMessageCause.REMOVE,
+      removeCall
+    );
+  }, [loading, data, called]);
 
   return (
     <Action

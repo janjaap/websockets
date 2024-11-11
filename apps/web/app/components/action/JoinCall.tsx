@@ -1,6 +1,6 @@
 import { useJoinCallMutation } from 'types/graphql';
 import { Action } from './Action';
-import { ActionProps } from './action';
+import { ActionProps } from './types';
 
 export const JoinCall = (props: ActionProps) => {
   const { callId, isDisabled, onError } = props;

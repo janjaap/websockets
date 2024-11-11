@@ -1,8 +1,9 @@
 import { clientSocket } from 'app/lib/clientSocket';
 import { useEffect } from 'react';
+import { ClientEvents, SocketMessageCause } from 'socket/types';
 import { useEndCallMutation } from 'types/graphql';
-import { ActionProps } from './action';
 import { Action } from './Action';
+import { ActionProps } from './types';
 
 export const EndCall = (props: ActionProps) => {
   const { callId, isDisabled, onError } = props;
@@ -19,7 +20,7 @@ export const EndCall = (props: ActionProps) => {
 
     if (!call) return;
 
-    clientSocket.emit('message', 'call:end', call);
+    clientSocket.emit(ClientEvents.MUTATE, SocketMessageCause.END, call);
   }, [loading, data]);
 
   useEffect(() => {

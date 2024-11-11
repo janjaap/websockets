@@ -3,6 +3,7 @@ import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { clientSocket } from 'app/lib/clientSocket';
 import { useCreateCall } from 'app/lib/hooks/useCreateCall';
+import { ClientEvents, SocketMessageCause } from 'socket/types';
 import css from './newCall.module.css';
 
 interface Props {
@@ -18,7 +19,11 @@ export const NewCall = ({ onError }: Props) => {
 
     const { createCall } = data;
 
-    clientSocket.emit('message', 'call:start', createCall);
+    clientSocket.emit(
+      ClientEvents.MUTATE,
+      SocketMessageCause.START,
+      createCall
+    );
   }, [data, loading]);
 
   useEffect(() => {
@@ -39,6 +44,8 @@ export const NewCall = ({ onError }: Props) => {
     if (!callLabel) return;
 
     await createCall({ variables: { callLabel } });
+
+    setCallLabel('');
   }
 
   return (

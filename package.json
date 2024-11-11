@@ -5,6 +5,7 @@
     "dev:apollo": "pnpm --filter apollo run dev",
     "dev:socket": "pnpm --filter socket run dev",
     "dev:web": "pnpm --filter web run dev",
+    "dev": "pnpm --parallel dev",
     "codegen": "pnpm --filter apollo --sequential run codegen"
   },
   "packageManager": "pnpm@9.5.0",
